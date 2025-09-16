@@ -1,0 +1,41 @@
+// Copyright (c) 2020 FPGAcademy
+// Please see license at https://github.com/fpgacademy/DESim
+
+// Protect against undefined nets
+`default_nettype none
+
+
+
+module Top (CLOCK_10, CLOCK1_50, CLOCK2_50, KEY, SW, LEDR, GPIO_in, GPIO_out);
+    input  logic         CLOCK_10;   // DE-series 10 MHz clock signal
+    input  logic         CLOCK1_50;  // DE-series 50 MHz clock signal
+    input  logic         CLOCK2_50;  // DE-series 50 MHz clock signal
+    input  logic [ 1: 0] KEY;        // DE-series pushbuttons
+    input  logic [ 9: 0] SW;         // DE-series switches
+    output logic [ 9: 0] LEDR;       // DE-series LEDs
+    input GPIO_in;
+    output[1:0] GPIO_out;
+
+    //assign LEDR[9] = GPIO_in;
+    //assign LEDR[8] = GPIO_out[1];
+    //assign GPIO_out[0] = 1'b0;
+
+     
+    wire clk;
+
+    FrequencySplitter #(.N(50_000_000)) clk_s (.clk_in(CLOCK1_50), .clk_out(clk), .rst_n(KEY[0]));
+	 
+	 wire [ 8 - 1 : 0]    res_out [ 10 - 1:0 ];
+	 
+	 assign LEDR[7:0] = res_out[0];
+	 
+	 cuber #(8, 10) (.arg(SW[7:0]), .arg_vld(SW[8]), .res(res_out), .res_vld(LEDR[8]), .clk(clk), .rst_n(KEY[0]), .clk_en(KEY[1]));
+	 
+	 always @(posedge clk) begin
+			LEDR[9] <= !LEDR[9];
+		end
+	 
+	 
+
+endmodule
+
