@@ -74,6 +74,8 @@ module tb_bin_seg7_con;
         assert (seg_out == 0) 
         else   $display("Failed BI scenario: got %h", seg_out);
 
+	$display("Test finished");
+
         $finish;
     end
 
