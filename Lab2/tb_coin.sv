@@ -31,6 +31,7 @@ module tb_coin;
     
     initial begin
         clk = 1'b1;
+        coin_in = '0;
     end
 
     initial forever #10 clk = ~clk;
@@ -48,10 +49,8 @@ module tb_coin;
         for (int i = 0; i < $size(ar); i++) begin
             coin_in = ar[i];
 
-            ref_reserve = ref_reserve + coin_in;
-            if (ref_reserve >= 5) begin
+            if (ref_reserve + coin_in >= 5) begin
                 ref_coin_out = 5;
-                ref_reserve = ref_reserve - 3'b101;
             end else begin
                 ref_coin_out = 0;
             end
@@ -62,6 +61,9 @@ module tb_coin;
             else   $display("Failed assert coin_out of coin %d: %d != %d", i, coin_out, ref_coin_out); 
             assert (ref_reserve  == reserve) 
             else   $display("Failed assert reserve of coin %d: %d != %d", i, reserve, ref_reserve); 
+            
+            ref_reserve = ref_reserve + coin_in;
+            if(ref_reserve >= 5) ref_reserve = ref_reserve - 5;
 
         end
 

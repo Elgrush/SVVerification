@@ -6,16 +6,22 @@ module coin (
     output logic [2:0] coin_out
 );
 
+logic [3:0] reserve_next;
+
+always_comb begin
+    coin_out = '0;
+    reserve_next = reserve + coin_in;
+    if(reserve_next >= 3'b101) begin
+        coin_out = 3'b101;
+        reserve_next = reserve_next - coin_out;
+    end
+end
+
 always_ff @( posedge clk, negedge rst_n ) begin : OUTPUT_LOGIC
     if(!rst_n) begin
         reserve  <= '0;
     end else begin
-        reserve <= reserve + coin_in;
-        coin_out <= '0;
-        if(reserve + coin_in >= 3'b101) begin
-            reserve <= reserve + coin_in - 3'b101;
-            coin_out <= 3'b101;
-        end
+        reserve <= reserve_next;
     end
 end
 
