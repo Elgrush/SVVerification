@@ -19,8 +19,8 @@ localparam [$clog2(DATA_WIDTH)-1:0] DATA_WIDTH_COMP = DATA_WIDTH;
 
 logic [$clog2(DATA_WIDTH)-1:0] data_cnt;
 
-typedef enum logic [1:0] { 
-    IDLE, INIT, DATA
+typedef enum logic [0:0] { 
+    IDLE, DATA
 } STATE;
 
 STATE current_state, next_state;
@@ -50,11 +50,11 @@ always_ff @( posedge clk or negedge rst_n ) begin : memoryControl
                 if(!data_out_ack) begin
                     data_out_valid <= '0;
                 end
-            end
-            INIT : begin
-                data_out <= data_in;
-                data_out_valid <= '0;
-                data_in_ack <= '1;
+                if(next_state == DATA) begin
+                    data_out <= data_in;
+                    data_out_valid <= '0;
+                    data_in_ack <= '1;
+                end
             end
             DATA : begin
                 data_out <= {MISO, data_out[DATA_WIDTH-1:1]};
@@ -73,11 +73,8 @@ always_comb begin : stateSwitchControlBlock
     case (current_state)
         IDLE : begin
             if(data_in_valid && !data_in_ack && !data_out_valid) begin
-                next_state = INIT;
+                next_state = DATA;
             end
-        end
-        INIT : begin
-            next_state = DATA;
         end
         DATA : begin
             if(data_cnt == DATA_WIDTH_COMP - 1'b1) begin
@@ -92,7 +89,7 @@ always_comb begin : outputPortControlBlock
 
     MOSI = data_out[0];
     
-    if((next_state==INIT)||(next_state==DATA)) begin
+    if(next_state==DATA) begin
         SS_n <= '0;
     end else begin
         SS_n <= '1;
