@@ -1,11 +1,11 @@
-Analysis & Synthesis Status : Successful - Sun Oct 19 16:53:29 2025
+Analysis & Synthesis Status : Successful - Sun Oct 19 19:15:40 2025
 Quartus Prime Version : 17.1.0 Build 590 10/25/2017 SJ Lite Edition
 Revision Name : DigitalSyntes
 Top-level Entity Name : spi_slave
 Family : Cyclone V
 Logic utilization (in ALMs) : N/A
-Total registers : 27
-Total pins : 23
+Total registers : 14
+Total pins : 25
 Total virtual pins : 0
 Total block memory bits : 0
 Total DSP Blocks : 0

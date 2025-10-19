@@ -1,0 +1,1 @@
+Warning (10268): Verilog HDL information at spi_master.sv(90): always construct contains both blocking and non-blocking assignments File: G:/CodingSpace/SVVerification/Lab3/spi/spi_master.sv Line: 90
