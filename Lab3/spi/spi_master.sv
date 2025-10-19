@@ -90,9 +90,9 @@ always_comb begin : outputPortControlBlock
     MOSI = data_out[0];
     
     if(next_state==DATA) begin
-        SS_n <= '0;
+        SS_n = '0;
     end else begin
-        SS_n <= '1;
+        SS_n = '1;
     end
 end
 
