@@ -4,7 +4,8 @@ module wb_ram
 #(
 	parameter depth = 256,
 	parameter memfile = "firmware.mem",
-	parameter VERBOSE = 0
+	parameter VERBOSE = 0,
+	parameter ADDR_MASK = 32'hffff_0000
 ) 
 (
 	input wb_clk_i,
@@ -40,12 +41,12 @@ module wb_ram
 		end
 	end
 
-	wire ram_we = wb_we_i & valid & wb_ack_o & ((wb_adr_i >> 2) < depth);
+	wire ram_we = wb_we_i & valid & wb_ack_o & (((wb_adr_i & ~(ADDR_MASK)) >> 2) < depth);
 
 	wire [31:0] waddr;
-	assign waddr = wb_adr_i >> 2;
+	assign waddr = (wb_adr_i & ~(ADDR_MASK)) >> 2;
 	wire [31:0] raddr;
-	assign raddr = wb_adr_i >> 2;
+	assign raddr = (wb_adr_i & ~(ADDR_MASK)) >> 2;
 	wire [3:0] we = {4{ram_we}} & wb_sel_i;
 
 

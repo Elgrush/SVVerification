@@ -1,8 +1,7 @@
 //#define N 1024
 
-#define GPIO_ADDR 0x10010000
-#define MEM_ADDR  0x10040000
-#define FFT_ADDR  0x10030000
+#define GPIO_ADDR  0x10010000
+#define ARRAY_ADDR 0x00010000
 
 int read_int(int addr)
 {
@@ -85,265 +84,59 @@ int Bartlett_fp(int n, int offset,int W)
 
 //**************************************************************//
 
-void main()
-{
-    volatile int sig = 0;
-    volatile int a = 0;
-    
-    volatile int SIZE = 20000;
-    
-    volatile int output_value = 0;
-    
-    //volatile int b[10] = {1999,1999,1999,1999,1999,1999,1999,1999,1999,1999};
-    
-    //simple test
-    ///*
-    for(int i = 0;i<32;i++)
-    {
-      sig = 1<<i;
-      write_int(0x10010000,sig);
-    }
-    //*/
-    
-    /*
-    //test_exp
-    sig = exp_fp(0x24CCC);
-    write_int(0x10010000,sig);
-    sig = exp_fp(0x32666);
-    write_int(0x10010000,sig);
-
-    //test_sqrt
-    sig = sqroot_fp(0x20000);
-    write_int(0x10010000,sig);
-    sig = sqroot_fp(0x24CCC);
-    write_int(0x10010000,sig);
-    */
-    
-    /*
-    sig = Bartlett_fp(0*0x10000,0x140000,0x140000);
-    write_int(0x10010000,sig);
-    sig = Bartlett_fp(25*0x10000,0x140000,0x140000);
-    write_int(0x10010000,sig);
-    sig = Bartlett_fp(30*0x10000,0x140000,0x140000);
-    write_int(0x10010000,sig);
-    */
-    
-    /*
-    //test Bartlett window
-    for(int i = 0; i < 512;i++)
-    {
-        a = i*0x10000;
-        sig = Bartlett_fp(a,0x140000,0x140000);
-        write_int(0x10010000,sig);
-    }
-    */
-    
-    /*
-    volatile int N = 9;
-    volatile int val = 0;
-    
-    for(int i = 0;i < SIZE;i++)
-    {
-        sig = read_int(MEM_ADDR + (i<<2));
-        write_int(GPIO_ADDR,sig);   
-    }
-    
-    
-    for(int i = 0;i < SIZE;i++)
-    {
-        if(i<(N-1)) output_value = 0;
-        else
-        {
-          output_value = 0;
-          for(int k = 0; k < N; k++)
-          {
-            sig = read_int(MEM_ADDR + ((i-k)<<2));
-            val = mul_fp(1999,sig);
-            output_value+=val;    
-          } 
-        }
-        write_int(GPIO_ADDR+4,output_value); 
-        //write_int(GPIO_ADDR+4,3*sig);  //test sig printf 
-        //write_int(FFT_ADDR + (i<<2),2*sig);
-    }
-    */
-    //print signal
-    /*
-    for(int i = 0;i < 1024;i++)
-    {
-        sig = read_int(MEM_ADDR + (i<<2));
-        write_int(GPIO_ADDR,sig);             //test sig printf 
-        //write_int(FFT_ADDR + (i<<2),2*sig);
-    }
-    */
-    
-    //work fft test
-    /*
-    volatile int sig_ar [N];
-    
-    //read signal and save in ar
-    for(int i = 0;i < 1024;i++)
-    {
-        sig = read_int(MEM_ADDR + (i<<2));
-        sig_ar[i] = sig;
-    }
-    
-    
-    for(int i = 0;i < 1024;i++)
-    {
-        sig = read_int(MEM_ADDR + (i<<2));
-        write_int(GPIO_ADDR,sig);             //test sig printf 
-        write_int(FFT_ADDR + (i<<2),2*sig);
-    }
-    
-    write_int(FFT_ADDR+0x3004,1); //fft_control - run fft
-    //write_int(0x10010000,2);
-    
-
-    //polling fft_end flag
-    sig = read_int(FFT_ADDR+0x3008);
-    while(sig==0)
-    {
-        sig = read_int(FFT_ADDR+0x3008);
-        
-        //write_int(0x10010000,3);
-    }
-
-    //write_int(0x10010000,4);
-    write_int(FFT_ADDR+0x3004,0); //fft_control - stop fft
-
-    for(int i = 0;i < 1024;i++)
-    {
-        sig = read_int((FFT_ADDR + 0x1000)+ (i<<2)); //read fft_real
-        write_int(GPIO_ADDR,sig);
-    }
-    int mul_z;
-        
-        //mul sig on Bartlett_func
-        for(int i = 0; i < N;i++)
-        {
-            a = i*0x10000; //convert int -> fp(32,16)
-            sig = Bartlett_fp(a,0x140000,0x140000); //args: int n, int offset, int W
-            mul_z = mul_fp(sig,sig_ar[i]); //mul: signal*window;
-            write_int(FFT_ADDR + (i<<2),mul_z); //write in fft_buf
-        }
-        
-        //run fft
-        write_int(FFT_ADDR+0x3004,1); //fft_control - run fft
-    
-
-        //polling fft_end flag
-        sig = read_int(FFT_ADDR+0x3008);
-        while(sig==0) sig = read_int(FFT_ADDR+0x3008);
-        
-        //stop fft
-        write_int(FFT_ADDR+0x3004,0); //fft_control - stop fft
-
-        //read fft_r
-        for(int i = 0;i < N;i++)
-        {
-            sig = read_int((FFT_ADDR + 0x1000)+ (i<<2)); //read fft_real
-            write_int(GPIO_ADDR,sig); //hardware_printf
-        }
-        //read fft_i
-        for(int i = 0;i < N;i++)
-        {
-            sig = read_int((FFT_ADDR + 0x2000)+ (i<<2)); //read fft_imag
-            write_int(GPIO_ADDR,sig); //hardware_printf
-        }
-    //*/
-    
-    //full FFT
-    /*
-    volatile int sig_ar [N];
-    
-    //read signal and save in ar
-    for(int i = 0;i < 1024;i++)
-    {
-        sig = read_int(MEM_ADDR + (i<<2));
-        sig_ar[i] = sig;
-    }
-    
-    ///*
-    for(int k = 0; k < N;k++)
-    {
-        int offset = k*0x10000; //convert int -> fp(32,16)
-        
-        
-        
-    }
-    
-    */
-    
-    
-    //*********************TEST_CODE*********************//
-    /*
-      for(int k = 0; k < N;k++)
-      {
-        int offset = k*0x10000; //convert int -> fp(32,16)
-        int mul_z;
-        
-        //mul sig on Bartlett_func
-        for(int i = 0; i < N;i++)
-        {
-            a = i*0x10000; //convert int -> fp(32,16)
-            sig = Bartlett_fp(a,offset,0x140000); //args: int n, int offset, int W
-            mul_z = mul_fp(sig,sig_ar[i]); //mul: signal*window;
-            write_int(GPIO_ADDR,mul_z); //write in fft_buf
-        }
-      }
-    
-    */
-    
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
+int partition(int arr[], int low, int high) {
 
+    // Initialize pivot to be the first element
+    int p = arr[low];
+    int i = low;
+    int j = high;
 
+    while (i < j) {
 
-/*
-    // Initialize a character array with a coded message.
+        // Find the first element greater than
+        // the pivot (from starting)
+        while (arr[i] <= p && i <= high - 1) {
+            i++;
+        }
 
-    char a = 0;
-
-    for(int i = 0;i<64;i++)
-    {
-        a++;
-        putc(a);
+        // Find the first element smaller than
+        // the pivot (from last)
+        while (arr[j] > p && j >= low + 1) {
+            j--;
+        }
+        if (i < j) {
+            swap(&arr[i], &arr[j]);
+        }
     }
+    swap(&arr[low], &arr[j]);
+    return j;
+}
 
-    for(int i = 0;i<32;i++)
-    {
-        a = readc(0x10020000 + (i<<2));
-        putc(a);
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+
+        // call partition function to find Partition Index
+        int pi = partition(arr, low, high);
+
+        // Recursively call quickSort() for left and right
+        // half based on Partition Index
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
     }
+}
 
-    for(int i = 0;i <32;i++)write_int(0x10010000,1<<i);
+void main()
+{
 
-    int b = 4;
-    int c = 8;
-    write_int(0x10010000,b+c);
-    write_int(0x10010000,b-c);
-    write_int(0x10010000,b*c);
-    write_int(0x10010000,c/b);
-    //*/
-    //
+    int* arr = (int*)(ARRAY_ADDR)+1;
+    int size_of_array = *(int*)ARRAY_ADDR;
+    *(int*)ARRAY_ADDR = 0x1488;
 
-    /*
-    int sig;
-    for(int i = 0;i <1024;i++)
-    {
-        sig = read_int(0x10030000 + (i<<2));
-        write_int(0x10040000 + (i<<2),2*sig);
-    }
-
-    for(int i = 0;i <1024;i++)
-    {
-        sig = read_int(0x10030000 + (i<<2));
-        write_int(0x10010000,2*sig);
-    }
-    for(int i = 0;i <1024;i++)
-    {
-        sig = read_int(0x10030000 + (i<<2));
-        write_int(0x10010000,sig*32768);
-    }
-    */
+    quickSort(arr, 0, size_of_array - 1);
+}

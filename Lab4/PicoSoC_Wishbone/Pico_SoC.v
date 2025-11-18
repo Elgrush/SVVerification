@@ -12,16 +12,16 @@ module Pico_SoC (
 	always @(posedge clk) count_cycle <= !rst ? count_cycle + 1 : 0;
 
 
-	wire [31:0] 	wb_adr_pico,	wb_adr_ram,	wb_adr_gpio;
-	wire [31:0] 	wb_dat_o_pico,	wb_dat_o_ram,	wb_dat_o_gpio;
-	wire [3:0] 	wb_sel_pico,	wb_sel_ram,	wb_sel_gpio;
-	wire 		wb_we_pico,	wb_we_ram,	wb_we_gpio;
-	wire 		wb_cyc_pico,	wb_cyc_ram,	wb_cyc_gpio;
-	wire 		wb_stb_pico,	wb_stb_ram,	wb_stb_gpio;
-	wire [31:0] 	wb_dat_i_pico,	wb_dat_i_ram,	wb_dat_i_gpio;
-	wire 		wb_ack_pico,	wb_ack_ram,	wb_ack_gpio;
+	wire [31:0] 	wb_adr_pico,	wb_adr_ram,	wb_adr_array,	wb_adr_gpio;
+	wire [31:0] 	wb_dat_o_pico,	wb_dat_o_ram,	wb_dat_o_array,	wb_dat_o_gpio;
+	wire [3:0] 	wb_sel_pico,	wb_sel_ram,	wb_sel_array,	wb_sel_gpio;
+	wire 		wb_we_pico,	wb_we_ram,	wb_we_array,	wb_we_gpio;
+	wire 		wb_cyc_pico,	wb_cyc_ram,	wb_cyc_array,	wb_cyc_gpio;
+	wire 		wb_stb_pico,	wb_stb_ram,	wb_stb_array,	wb_stb_gpio;
+	wire [31:0] 	wb_dat_i_pico,	wb_dat_i_ram,	wb_dat_i_array,	wb_dat_i_gpio;
+	wire 		wb_ack_pico,	wb_ack_ram,	wb_ack_array,	wb_ack_gpio;
 	
-	wb_ram #(.depth (4*4096),.memfile("firmware.mem")) 
+	wb_ram #(.depth (4096),.memfile("firmware.mem")) 
 	ram ( // Wishbone interface
 		.wb_clk_i(clk),
 		.wb_rst_i(rst),
@@ -34,6 +34,24 @@ module Pico_SoC (
 		.wb_ack_o(wb_ack_ram),
 		.wb_sel_i(wb_sel_ram),
 		.wb_we_i(wb_we_ram),
+
+		.mem_instr(),
+		.tests_passed()
+	);
+	
+	wb_ram #(.depth (4096),.memfile("array.mem"), .ADDR_MASK(32'hFFFF_0000)) 
+	array_ram ( // Wishbone interface
+		.wb_clk_i(clk),
+		.wb_rst_i(rst),
+
+		.wb_adr_i(wb_adr_array),
+		.wb_dat_i(wb_dat_i_array),
+		.wb_stb_i(wb_stb_array),
+		.wb_cyc_i(wb_cyc_array),
+		.wb_dat_o(wb_dat_o_array),
+		.wb_ack_o(wb_ack_array),
+		.wb_sel_i(wb_sel_array),
+		.wb_we_i(wb_we_array),
 
 		.mem_instr(),
 		.tests_passed()
@@ -87,9 +105,9 @@ module Pico_SoC (
 	
 	//wishbone interconnect crossbar
 	wbxbar
-	#(	.NM(1),.NS(2),.AW(32),.DW(32),
-		.SLAVE_ADDR({32'h0000_0000, 32'h1001_0000}),
-		.SLAVE_MASK({32'hFFFF_0000, 32'hFFFF_F000}) 
+	#(	.NM(1),.NS(3),.AW(32),.DW(32),
+		.SLAVE_ADDR({32'h0000_0000, 32'h0001_0000, 32'h1001_0000}),
+		.SLAVE_MASK({32'hFFFF_0000, 32'hFFFF_0000, 32'hFFFF_F000}) 
 	)
 	crossbar
 	(
@@ -114,16 +132,16 @@ module Pico_SoC (
 		//
 		// Here are the output ports, used to control each of the
 		// various slave ports that we are connected to
-		.o_scyc({	wb_cyc_ram,	wb_cyc_gpio }), 
-		.o_sstb({	wb_stb_ram,	wb_stb_gpio }), 
-		.o_swe({	wb_we_ram,	wb_we_gpio }),
-		.o_saddr({	wb_adr_ram,	wb_adr_gpio }),
-		.o_sdata({	wb_dat_i_ram,	wb_dat_i_gpio }),//rev
-		.o_ssel({	wb_sel_ram,	wb_sel_gpio }),
+		.o_scyc({	wb_cyc_ram, wb_cyc_array,	wb_cyc_gpio }), 
+		.o_sstb({	wb_stb_ram,	wb_stb_array,	wb_stb_gpio }), 
+		.o_swe({	wb_we_ram,	wb_we_array,	wb_we_gpio }),
+		.o_saddr({	wb_adr_ram,	wb_adr_array,	wb_adr_gpio }),
+		.o_sdata({	wb_dat_i_ram,	wb_dat_i_array,	wb_dat_i_gpio }),//rev
+		.o_ssel({	wb_sel_ram,	wb_sel_array,	wb_sel_gpio }),
 		// ... and their return data back to us.
 		//.i_sstall({}), 
-		.i_sack({	wb_ack_ram,	wb_ack_gpio }),
-		.i_sdata({	wb_dat_o_ram,	wb_dat_o_gpio })//rev
+		.i_sack({	wb_ack_ram,	wb_ack_array,	wb_ack_gpio }),
+		.i_sdata({	wb_dat_o_ram,	wb_dat_o_array,	wb_dat_o_gpio })//rev
 		//.i_serr({})
 		// 
 	);
