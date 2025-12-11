@@ -1,0 +1,50 @@
+
+There are no discarded input sections
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD /tmp/ccysXOfv.o
+LOAD /tmp/ccOPvJ3M.o
+
+.memory         0x00000000      0x284
+                0x00000000                        . = 0x0
+ *(.init)
+ .init          0x00000000        0x8 /tmp/ccysXOfv.o
+ *(.text)
+ .text          0x00000008        0x0 /tmp/ccysXOfv.o
+ .text          0x00000008      0x12a /tmp/ccOPvJ3M.o
+                0x00000008                read_int
+                0x0000000c                write_int
+                0x00000010                mul_fp
+                0x00000024                div_fp
+                0x00000038                exp_fp
+                0x00000090                sqroot_fp
+                0x000000ce                Bartlett_fp
+ *(*)
+ .data          0x00000132        0x0 /tmp/ccysXOfv.o
+ .bss           0x00000132        0x0 /tmp/ccysXOfv.o
+ .COME_AND_GET_IT
+                0x00000132       0x14 /tmp/ccysXOfv.o
+ .riscv.attributes
+                0x00000146       0x79 /tmp/ccysXOfv.o
+ .data          0x000001bf        0x0 /tmp/ccOPvJ3M.o
+ .bss           0x000001bf        0x0 /tmp/ccOPvJ3M.o
+ *fill*         0x000001bf        0x1 
+ .text.startup  0x000001c0       0x30 /tmp/ccOPvJ3M.o
+                0x000001c0                main
+ .comment       0x000001f0       0x19 /tmp/ccOPvJ3M.o
+                                 0x1a (size before relaxing)
+ .note.GNU-stack
+                0x00000209        0x0 /tmp/ccOPvJ3M.o
+ .riscv.attributes
+                0x00000209       0x7b /tmp/ccOPvJ3M.o
+                0x00000284                        . = ALIGN (0x4)
+ *fill*         0x00000284        0x0 
+                0x00000284                        end = .
+LOAD /home/elgrush/CodingSpace/tools/riscv/riscv/bin/../lib/gcc/riscv32-unknown-elf/15.1.0/libgcc.a
+OUTPUT(./firmware/firmware.elf elf32-littleriscv)
