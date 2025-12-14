@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1765739791" />
+    <testcase name="spi_test" classname="tb" file="/mnt/g/CodingSpace/SVVerification/HW/spi/tb.py" lineno="45" time="0.009244918823242188" sim_time_ns="243.0" ratio_time="26284.708892098206" />
+  </testsuite>
+</testsuites>
